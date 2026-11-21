@@ -176,6 +176,15 @@ main{padding-top:11.5vh!important;padding-bottom:3vh!important}
 .skip{font-family:"Jua";font-size:2.6vh;color:#5a4a44;background:rgba(255,253,246,.92);border:0;border-radius:999px;padding:1vh 2.6vh;cursor:pointer;box-shadow:0 4px 0 rgba(58,46,42,.12)}
 .skip:hover{background:#fff}
 .skip{border:.4vh solid #2b2840;box-shadow:0 .5vh 0 #2b2840;background:#fff;color:#6a3fc8}
+.pool{width:30vw!important}
+.it.pk{gap:.8vh;padding:.6vh .8vh}
+.it .go{font-family:"Jua";font-size:2vh;border:0;border-radius:999px;padding:.6vh 1.2vh;cursor:pointer;color:#fff}
+.it .go.mc{background:#9a8c80}.it .go.ai{background:#5b7fe0}
+.it .go{border:.3vh solid #2b2840}.it .go.ai{background:#f27ac6}
+.bin{width:30vw!important;cursor:default!important}
+.pool{width:28vw!important}
+.bin.sel{outline:none!important;box-shadow:0 .9vh 0 var(--line, rgba(58,46,42,.1))!important;border-style:dashed}
+.board{gap:1.6vw!important}
 </style></head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div>
@@ -258,7 +267,7 @@ main{padding-top:11.5vh!important;padding-bottom:3vh!important}
   <!-- 5 Build: 감별 도감 -->
   <section class="view col" id="v5">
     <span class="chip">4차시 · Build 제작</span>
-    <div class="mid">우리 반 감별 도감 만들기 — 통을 고르고 카드를 눌러 넣어요</div>
+    <div class="mid">우리 반 감별 도감 만들기 — 카드마다 «그냥 기계»인지 «AI»인지 골라 보내요</div>
     <div class="board">
       <div class="bin mc" id="binMC" onclick="selBin('mc')"><div class="lb"><span data-pic="gear" style="font-size:4vh"></span> 그냥 기계 (정해진 대로)</div><div class="items" id="inMC"></div></div>
       <div class="pool" id="pool"></div>
@@ -404,14 +413,15 @@ function pickRole(id){ S.rPick=id; renderRole(); if(id!==RCASES[S.ri].role) setT
 function roleNext(){ S.rPick=null; if(S.ri<RCASES.length-1){ S.ri++; renderRole(); } else go(8); }
 /* 제작: 감별 도감 */
 function selBin(b){ S.bin=b; renderBuild(); }
-function place(i){ S.placed[i]=S.bin; renderBuild(); }
+function place(i,b){ S.placed[i]=b; renderBuild(); }
+function unplace(i){ delete S.placed[i]; renderBuild(); }
 function renderBuild(){
   $('binAI').classList.toggle('sel',S.bin==='ai'); $('binMC').classList.toggle('sel',S.bin==='mc');
   const all=Object.keys(S.placed).length===BUILD.length;
-  const item=(b,i)=>`<span class="it ${all&&S.placed[i]!==b[3]?'bad':''}"><span class="e">${pic(b[0],b[1])}</span>${b[2]}${S.placed[i]==='ai'&&b[4]?` <span class="rs">${pic(ROLES[b[4]-1].ic)}</span>`:''}</span>`;
+  const item=(b,i)=>`<span class="it ${all&&S.placed[i]!==b[3]?'bad':''}" onclick="unplace(${i})" title="다시 가운데로" style="cursor:pointer"><span class="e">${pic(b[0],b[1])}</span>${b[2]}${S.placed[i]==='ai'&&b[4]?` <span class="rs">${pic(ROLES[b[4]-1].ic)}</span>`:''}</span>`;
   $('inAI').innerHTML=BUILD.map((b,i)=>S.placed[i]==='ai'?item(b,i):'').join('');
   $('inMC').innerHTML=BUILD.map((b,i)=>S.placed[i]==='mc'?item(b,i):'').join('');
-  $('pool').innerHTML=BUILD.map((b,i)=>S.placed[i]===undefined?`<span class="it" onclick="place(${i})"><span class="e">${pic(b[0],b[1])}</span>${b[2]}</span>`:'').join('') || '<div class="sub">다 넣었어요!</div>';
+  $('pool').innerHTML=BUILD.map((b,i)=>S.placed[i]===undefined?`<span class="it pk"><button class="go mc" onclick="place(${i},'mc')">◀ 그냥 기계</button><span class="e">${pic(b[0],b[1])}</span>${b[2]}<button class="go ai" onclick="place(${i},'ai')">AI ▶</button></span>`:'').join('') || '<div class="sub">다 넣었어요!</div>';
   const ok=all&&BUILD.every((b,i)=>S.placed[i]===b[3]);
   $('bFb').classList.toggle('hidden',!all); $('bNext').classList.toggle('hidden',!ok);
   if(all){ $('bFb').className='fb '+(ok?'ok':'no'); $('bFb').textContent= ok?'감별 도감 완성! AI 카드에는 하는 일 배지가 붙었어요':'빨간 테두리 카드를 다시 볼까요? 정해진 대로? 스스로 알아내?';
