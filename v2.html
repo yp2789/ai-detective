@@ -291,7 +291,7 @@ main{padding-top:11.5vh!important;padding-bottom:3vh!important}
   </section>
 </main>
 <div class="navbtns"><button class="skip" id="backBtn" onclick="back()" title="이전 (←)">◀ 이전</button><button class="skip" id="skipBtn" onclick="skip()" title="넘기기 (→)">넘기기 ▶</button></div>
-<div class="keys">🏠/Esc 처음 · ← 이전 · → 넘기기</div>
+<div class="keys">🏠/Esc 처음 · ←/Backspace 이전 · →/Space 넘기기</div>
 
 <script>
 /* ===== 내용 ===== */
@@ -458,7 +458,7 @@ function back(){
   if(S.v===7) return go(6);
 }
 function restart(){ S.pi=0;S.pPick=null;S.ri=0;S.rPick=null;S.placed={};S.bin='ai';S.li=0;S.lPick=null;S.blanks=[null,null,null];S.cur=0; go(0); }
-document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key==='s'||e.key==='S'||e.key==='PageDown') return skip(); if(e.key==='ArrowLeft'||e.key==='PageUp') return back(); if(e.key==='Escape'||e.key==='Home') restart(); });
+document.addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key==='s'||e.key==='S'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); return skip(); } if(e.key==='ArrowLeft'||e.key==='PageUp'||e.key==='Backspace'){ e.preventDefault(); return back(); } if(e.key==='Escape'||e.key==='Home') restart(); });
 
 /* 캡처용 #cap= */
 const CAP={
