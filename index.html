@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI 감별사</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=IBM+Plex+Sans+KR:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme: light;
+  --ink:#3a2e2a; --cream:#fffdf6; --green:#43b97f; --green-d:#2e8a5c;
+  --amber:#f5b93f; --amber-d:#d69a2d; --red:#e0574f; --red-d:#b13d36;
+  --ai:#5b7fe0; --ai-d:#3f61bd;       /* AI */
+  --mc:#9a8c80; --mc-d:#776a5f;       /* 그냥 기계 */
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:"IBM Plex Sans KR",sans-serif;color:var(--ink);background:linear-gradient(#effaf0,#d6f0dc);overflow:hidden;word-break:keep-all;user-select:none}
+.blob{position:fixed;border-radius:50%;pointer-events:none;z-index:0}
+.b1{width:58vh;height:58vh;left:-19vh;top:-16vh;background:radial-gradient(circle at 35% 35%,rgba(67,185,127,.22),rgba(67,185,127,0) 70%)}
+.b2{width:72vh;height:72vh;right:-24vh;bottom:-22vh;background:radial-gradient(circle at 40% 40%,rgba(245,185,63,.2),rgba(245,185,63,0) 70%)}
+header{position:fixed;top:0;left:0;right:0;height:10vh;display:flex;align-items:center;justify-content:space-between;padding:0 3vw;z-index:5}
+header .l{display:flex;align-items:center;gap:1.4vw}
+header h1{font-family:"Jua";font-weight:400;font-size:4.4vh}
+.home{width:5.6vh;height:5.6vh;border-radius:50%;border:0;background:rgba(255,253,246,.9);font-size:2.8vh;cursor:pointer;box-shadow:0 3px 0 rgba(58,46,42,.1)}
+.steps{display:flex;gap:.6vw}
+.steps span{font-family:"Jua";font-size:2.1vh;background:rgba(255,253,246,.7);color:#9a8c80;border-radius:999px;padding:.6vh 1.5vh}
+.steps span.on{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-d)}
+main{position:relative;z-index:1;height:100%;padding:11vh 3.4vw 4vh}
+.view{display:none;height:100%}
+.view.on{display:flex}
+.col{flex-direction:column;align-items:center;justify-content:center;gap:2.6vh;text-align:center}
+.chip{display:inline-block;font-family:"Jua";font-size:2.3vh;color:#fff;border-radius:999px;padding:.6vh 2vh;background:var(--amber);box-shadow:0 3px 0 var(--amber-d)}
+.big{font-family:"Jua";font-size:6.4vh;line-height:1.2}
+.mid{font-family:"Jua";font-size:4.2vh;line-height:1.3}
+.sub{font-size:2.8vh;font-weight:600;line-height:1.6}
+.sub b{color:var(--green-d)}
+.btn{font-family:"Jua";font-size:3.2vh;color:#fff;background:var(--green);border:0;border-radius:3vh;padding:1.6vh 4.2vh;cursor:pointer;box-shadow:0 7px 0 var(--green-d),0 14px 22px rgba(46,138,92,.2)}
+.btn:active{transform:translateY(4px);box-shadow:0 3px 0 var(--green-d)}
+.btn.amber{background:var(--amber);box-shadow:0 7px 0 var(--amber-d)}
+.btn.ghost{background:var(--cream);color:var(--ink);box-shadow:0 7px 0 #e6dccb}
+.row{display:flex;gap:1.6vw;justify-content:center;flex-wrap:wrap;align-items:center}
+.hidden{display:none!important}
+.fb{font-family:"Jua";font-size:3vh;background:rgba(255,255,255,.88);border-radius:2.4vh;padding:1.4vh 2.6vh;line-height:1.45}
+.fb.ok{color:var(--green-d)} .fb.no{color:var(--red-d)}
+
+/* 박람회 */
+.fair{display:grid;grid-template-columns:repeat(4,1fr);gap:1.6vw;width:min(92vw,165vh)}
+.booth{background:var(--cream);border-radius:3vh;padding:2vh 1vw 2.2vh;box-shadow:0 8px 0 rgba(58,46,42,.06);position:relative}
+.booth .e{font-size:11vh;line-height:1.2}
+.booth .n{font-family:"Jua";font-size:2.7vh;margin-top:.6vh}
+.sticker{position:absolute;right:-1vh;top:-1.6vh;font-family:"Jua";font-size:2.2vh;color:#fff;background:var(--ai);border-radius:1.2vh;padding:.3vh 1.2vh;transform:rotate(10deg);box-shadow:0 3px 0 var(--ai-d)}
+.sticker.q{background:var(--red);box-shadow:0 3px 0 var(--red-d)}
+
+/* 짝 비교 */
+.pair{display:flex;gap:3vw;align-items:stretch;justify-content:center}
+.card{width:min(36vw,62vh);background:var(--cream);border-radius:4vh;padding:2.6vh 2vw 3vh;box-shadow:0 12px 0 rgba(58,46,42,.05),0 2px 18px rgba(46,138,92,.14);cursor:pointer;position:relative;border:.6vh solid transparent;transition:transform .15s}
+.card:hover{transform:translateY(-.6vh)}
+.card .e{font-size:16vh;line-height:1.2;letter-spacing:.8vh}
+.card .n{font-family:"Jua";font-size:3.8vh;margin-top:1vh}
+.card .d{font-size:2.6vh;font-weight:600;line-height:1.5;margin-top:1vh;color:#5a4a44}
+.card .tag{position:absolute;left:50%;top:-2.2vh;transform:translateX(-50%);font-family:"Jua";font-size:2.6vh;color:#fff;border-radius:1.4vh;padding:.4vh 1.8vh;white-space:nowrap}
+.card.isAI{border-color:var(--ai)} .card.isAI .tag{background:var(--ai);box-shadow:0 3px 0 var(--ai-d)}
+.card.isMC{border-color:var(--mc)} .card.isMC .tag{background:var(--mc);box-shadow:0 3px 0 var(--mc-d)}
+.card.wrong{animation:shake .4s}
+@keyframes shake{25%{transform:translateX(-1vw)}75%{transform:translateX(1vw)}}
+.vs{font-family:"Jua";font-size:5vh;align-self:center;color:#9a8c80}
+.rule{display:flex;gap:2vw;justify-content:center}
+.rule div{font-family:"Jua";font-size:2.8vh;border-radius:2vh;padding:1.2vh 2.4vh;color:#fff}
+.rule .m{background:var(--mc)} .rule .a{background:var(--ai)}
+
+/* 역할 */
+.roles{display:grid;grid-template-columns:repeat(4,1fr);gap:1.2vw;width:min(92vw,160vh)}
+.role{font-family:"Jua";font-size:2.9vh;color:var(--ink);background:var(--cream);border:.5vh solid #e6dccb;border-radius:2.6vh;padding:1.6vh 1vw;cursor:pointer;line-height:1.3}
+.role span{display:block;font-size:7vh}
+.role small{display:block;font-family:"IBM Plex Sans KR";font-size:1.9vh;font-weight:600;color:#7a6a64;margin-top:.4vh}
+.role.pick{border-color:var(--ai);background:#eef2fd}
+.role.dim{opacity:.35}
+
+/* 감별 도감 (Build) */
+.board{display:flex;gap:2.4vw;align-items:stretch}
+.bin{width:36vw;min-height:44vh;border-radius:3.4vh;padding:2vh 1.4vw;display:flex;flex-direction:column;gap:1.2vh;cursor:pointer;border:.5vh dashed}
+.bin.ai{background:#eef2fd;border-color:var(--ai)} .bin.mc{background:#f3efeb;border-color:var(--mc)}
+.bin.sel{border-style:solid;box-shadow:0 0 0 .6vh rgba(91,127,224,.18)}
+.bin .lb{font-family:"Jua";font-size:3.2vh}
+.bin .items{display:flex;flex-wrap:wrap;gap:1vh;justify-content:center}
+.it{font-family:"Jua";font-size:2.4vh;background:#fff;border-radius:1.6vh;padding:.8vh 1.2vh;box-shadow:0 3px 0 rgba(58,46,42,.08);display:flex;align-items:center;gap:.6vh}
+.it .e{font-size:5.4vh}
+.it.bad{outline:.4vh solid var(--red)}
+.it .rs{font-size:2.6vh}
+.pool{width:20vw;display:flex;flex-direction:column;gap:1vh;align-items:center;justify-content:center}
+.pool .it{cursor:pointer;font-size:2.6vh}
+.idea{display:flex;gap:2vw;align-items:center;justify-content:center}
+.idea .box{background:var(--cream);border-radius:3vh;padding:2vh 2vw;box-shadow:0 8px 0 rgba(58,46,42,.06);min-width:30vw}
+.idea .box .e{font-size:9vh}
+.idea .box .n{font-family:"Jua";font-size:3.2vh}
+.idea .box .d{font-size:2.4vh;font-weight:600;color:#5a4a44;margin-top:.6vh}
+.arrow{font-family:"Jua";font-size:6vh;color:var(--ai)}
+
+/* 성찰 */
+.qs{display:flex;flex-direction:column;gap:1.6vh;width:min(84vw,140vh);text-align:left}
+.qs div{background:var(--cream);border-radius:2.4vh;padding:1.8vh 2.4vw;box-shadow:0 5px 0 #e6dccb;font-family:"Jua";font-size:3.2vh;display:flex;gap:1.6vw;align-items:center}
+.qs div span{font-size:4.4vh}
+.badge{font-family:"Jua";font-size:5vh;background:var(--cream);border:.7vh solid var(--ai);border-radius:3vh;padding:2vh 4vw;box-shadow:0 10px 0 rgba(58,46,42,.06)}
+.badge small{display:block;font-size:2.6vh;color:#7a6a64;margin-top:.6vh}
+.pic{display:inline-flex;position:relative;align-items:flex-end;justify-content:center}
+.fe.main{width:1em;height:1em;object-fit:contain;filter:drop-shadow(0 .6vh .6vh rgba(58,46,42,.18))}
+.fe.badge{position:absolute;right:-.42em;bottom:-.12em;width:.62em;height:.62em;object-fit:contain;background:#fff;border-radius:50%;padding:.07em;box-shadow:0 .3vh 1vh rgba(58,46,42,.22)}
+.pic{margin-right:.3em}
+.fe.badge{display:none}
+.keys{position:fixed;right:3.4vw;bottom:1.4vh;font-size:1.6vh;color:rgba(58,46,42,.4);z-index:5}
+</style></head>
+<body>
+<div class="blob b1"></div><div class="blob b2"></div>
+<header>
+  <div class="l"><button class="home" onclick="go(0)" title="처음으로">🏠</button><h1><span data-pic="detective" style="font-size:5vh;vertical-align:middle"></span> AI 감별사</h1></div>
+  <div class="steps" id="steps"></div>
+</header>
+
+<main>
+  <!-- 0 Narrative -->
+  <section class="view col on" id="v0">
+    <span class="chip">1차시 · Narrative 이야기</span>
+    <div class="big">마을 발명품 박람회에 «AI» 스티커가 잔뜩!</div>
+    <div class="sub">누군가 장난으로 아무 물건에나 «AI» 스티커를 붙였대요.<br>여러분은 오늘부터 <b>AI 감별사</b> — 진짜 AI를 가려내 주세요!</div>
+    <div class="fair" id="fair"></div>
+    <div class="row"><button class="btn" onclick="go(1)">감별 시작!</button></div>
+  </section>
+
+  <!-- 1 Problem -->
+  <section class="view col" id="v1">
+    <span class="chip">1차시 · Problem 문제</span>
+    <div class="big">어떤 게 진짜 AI일까?</div>
+    <div class="sub">둘 다 편리한 기계예요. 그런데 <b>AI</b>와 <b>그냥 기계</b>는 뭐가 다를까요?</div>
+    <div class="pair">
+      <div class="card"><div class="e" data-pic="door"></div><div class="n">자동문</div><div class="d">사람이 다가가면 문이 열려요</div></div>
+      <div class="vs">VS</div>
+      <div class="card"><div class="e" data-pic="door,smile"></div><div class="n">얼굴 인식 문</div><div class="d">우리 반 친구 얼굴이면 문이 열려요</div></div>
+    </div>
+    <div class="fb">🤔 둘 다 «알아서» 열리는데… 무엇이 다를까? → 오늘의 질문</div>
+    <div class="row"><button class="btn amber" onclick="go(2)">탐구하러 가기 ▶</button></div>
+  </section>
+
+  <!-- 2 Inquiry 1: 짝 비교 -->
+  <section class="view col" id="v2">
+    <span class="chip" id="pChip">2차시 · Inquiry 탐구 ①</span>
+    <div class="mid">둘 중 <b style="color:var(--ai)">AI</b>는 어느 쪽일까? 눌러서 골라요</div>
+    <div class="pair" id="pair"></div>
+    <div class="fb" id="pFb">어떤 게 «정해진 대로» 하고, 어떤 게 «스스로 알아낼»까?</div>
+    <div class="row hidden" id="pNext"><button class="btn amber" onclick="pairNext()">다음 짝 ▶</button></div>
+  </section>
+
+  <!-- 3 기준 정리 -->
+  <section class="view col" id="v3">
+    <span class="chip">2차시 · Inquiry 탐구 ① 정리</span>
+    <div class="big">감별 기준을 찾았다!</div>
+    <div class="pair">
+      <div class="card isMC" style="cursor:default"><span class="tag">그냥 기계</span><div class="e" data-pic="gear"></div><div class="n">정해진 대로만 해요</div><div class="d">사람이 정한 규칙 그대로 —<br>«이러면 이렇게»</div></div>
+      <div class="card isAI" style="cursor:default"><span class="tag">AI</span><div class="e" data-pic="brain,eyes"></div><div class="n">보고 듣고 스스로 알아내요</div><div class="d">예시를 많이 보고 배워서<br>처음 보는 것도 알아맞혀요</div></div>
+    </div>
+    <div class="sub">«규칙으로 가르치기»와 «예시로 가르치기»(초저 4·5차시)를 떠올려 봐요</div>
+    <div class="row"><button class="btn amber" onclick="go(4)">AI는 무슨 일을 할까? ▶</button></div>
+  </section>
+
+  <!-- 4 Inquiry 2: 역할 -->
+  <section class="view col" id="v4">
+    <span class="chip" id="rChip">3차시 · Inquiry 탐구 ②</span>
+    <div class="pair" style="align-items:center">
+      <div class="card isAI" style="cursor:default;width:min(40vw,72vh)"><span class="tag">AI 맞아요</span><div class="e" id="rArt"></div><div class="n" id="rName"></div><div class="d" id="rDesc"></div></div>
+    </div>
+    <div class="mid">이 AI는 무슨 일을 하고 있을까?</div>
+    <div class="roles" id="roles"></div>
+    <div class="fb" id="rFb">일하는 모습을 보고 골라요</div>
+    <div class="row hidden" id="rNext"><button class="btn amber" onclick="roleNext()">다음 ▶</button></div>
+  </section>
+
+  <!-- 5 Build: 감별 도감 -->
+  <section class="view col" id="v5">
+    <span class="chip">4차시 · Build 제작</span>
+    <div class="mid">우리 반 감별 도감 만들기 — 통을 고르고 카드를 눌러 넣어요</div>
+    <div class="board">
+      <div class="bin mc" id="binMC" onclick="selBin('mc')"><div class="lb"><span data-pic="gear" style="font-size:4vh"></span> 그냥 기계 (정해진 대로)</div><div class="items" id="inMC"></div></div>
+      <div class="pool" id="pool"></div>
+      <div class="bin ai" id="binAI" onclick="selBin('ai')"><div class="lb"><span data-pic="brain" style="font-size:4vh"></span> AI (스스로 알아내요)</div><div class="items" id="inAI"></div></div>
+    </div>
+    <div class="fb hidden" id="bFb"></div>
+    <div class="row hidden" id="bNext"><button class="btn amber" onclick="go(6)">그냥 기계를 AI로 바꾼다면? ▶</button></div>
+  </section>
+
+  <!-- 6 Build: 아이디어 -->
+  <section class="view col" id="v6">
+    <span class="chip">4차시 · Build 제작</span>
+    <div class="big">그냥 기계를 AI로 바꿔 볼까?</div>
+    <div class="idea">
+      <div class="box"><div class="e" data-pic="umbrella"></div><div class="n">우산꽂이 (그냥 기계)</div><div class="d">우산을 꽂아 두기만 해요</div></div>
+      <div class="arrow">➜</div>
+      <div class="box" style="border:.6vh solid var(--ai)"><div class="e" data-pic="umbrella,rain"></div><div class="n">AI 우산꽂이</div><div class="d">하늘을 보고 «오늘 비 와요, 우산 챙겨!» 알려 줘요<br><b style="color:var(--ai)">알아보기 + 알아듣고 답하기</b></div></div>
+    </div>
+    <div class="sub">모둠 활동지: <b>바꿀 기계</b> → <b>무엇을 보고·듣고 알아낼까?</b> → <b>어떤 일을 해 줄까?</b> 그려 보기</div>
+    <div class="row"><button class="btn amber" onclick="go(7)">돌아보기 ▶</button></div>
+  </section>
+
+  <!-- 7 Reflect -->
+  <section class="view col" id="v7">
+    <span class="chip">4차시 · Reflect 성찰</span>
+    <div class="big">감별사의 돌아보기</div>
+    <div class="qs">
+      <div><span data-pic="detective"></span>어떤 «증거»를 보고 AI라고 판단했나요?</div>
+      <div><span data-pic="gear,brain"></span>그냥 기계와 AI는 일하는 방법이 어떻게 달랐나요?</div>
+      <div><span data-pic="label"></span>AI가 틀린다면 누가 어떻게 확인해야 할까요?</div>
+    </div>
+    <div class="badge"><span data-pic="detective,medal" style="font-size:9vh"></span><br>AI 감별사 1급<small>정해진 대로? 스스로 알아내? — 증거로 판단해요 · 이상하면 어른에게 물어봐요</small></div>
+    <div class="row"><button class="btn ghost" onclick="restart()">처음부터</button></div>
+  </section>
+</main>
+<div class="keys">🏠/Esc 처음 · → 다음</div>
+
+<script>
+/* ===== 내용 ===== */
+const FE="https://cdn.jsdelivr.net/gh/microsoft/fluentui-emoji@1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets/";
+const IMG={
+  door:"Door/3D/door_3d.png", smile:"Smiling face/3D/smiling_face_3d.png", basket:"Basket/3D/basket_3d.png", cucumber:"Cucumber/3D/cucumber_3d.png",
+  eyes:"Eyes/3D/eyes_3d.png", mic:"Studio microphone/3D/studio_microphone_3d.png", bird:"Bird/3D/bird_3d.png", ear:"Ear/Default/3D/ear_3d_default.png",
+  bell:"Bell/3D/bell_3d.png", mountain:"Mountain/3D/mountain_3d.png", cam:"Video camera/3D/video_camera_3d.png", mega:"Megaphone/3D/megaphone_3d.png",
+  speech:"Speech balloon/3D/speech_balloon_3d.png", whale:"Spouting whale/3D/spouting_whale_3d.png", headphone:"Headphone/3D/headphone_3d.png",
+  film:"Film frames/3D/film_frames_3d.png", popcorn:"Popcorn/3D/popcorn_3d.png", crayon:"Crayon/3D/crayon_3d.png", dancer:"Man dancing/Default/3D/man_dancing_3d_default.png",
+  cane:"Person with white cane/Default/3D/person_with_white_cane_3d_default.png", phone:"Mobile phone/3D/mobile_phone_3d.png",
+  abacus:"Abacus/3D/abacus_3d.png", traffic:"Vertical traffic light/3D/vertical_traffic_light_3d.png", thermo:"Thermometer/3D/thermometer_3d.png",
+  strawberry:"Strawberry/3D/strawberry_3d.png", robot:"Robot/3D/robot_3d.png", cow:"Cow face/3D/cow_face_3d.png", penguin:"Penguin/3D/penguin_3d.png",
+  gear:"Gear/3D/gear_3d.png", brain:"Brain/3D/brain_3d.png", umbrella:"Umbrella/3D/umbrella_3d.png", rain:"Cloud with rain/3D/cloud_with_rain_3d.png",
+  gift:"Wrapped gift/3D/wrapped_gift_3d.png", palette:"Artist palette/3D/artist_palette_3d.png", detective:"Detective/Default/3D/detective_3d_default.png",
+  tent:"Circus tent/3D/circus_tent_3d.png", label:"Label/3D/label_3d.png", bulb:"Light bulb/3D/light_bulb_3d.png", medal:"Sports medal/3D/sports_medal_3d.png",
+};
+const im=(k,cls='')=>`<img class="fe ${cls}" src="${FE}${encodeURI(IMG[k])}" alt="">`;
+const pic=(a,b)=>`<span class="pic">${im(a,'main')}${b?im(b,'badge'):''}</span>`;
+const FAIR = [["cucumber","eyes","오이 고르는 기계"],["door",null,"자동문"],["bird","ear","새소리 앱"],["bell",null,"화재경보기"],["whale","headphone","고래 소리 탐지기"],["mic",null,"녹음기"],["dancer","crayon","그림이 춤추는 앱"],["abacus",null,"주판"]];
+const PAIRS = [ // mc: 그냥 기계 / ai
+  { mc:["basket",null,"구멍 체","구멍보다 작은 오이만 아래로 떨어져요"], ai:["cucumber","eyes","오이 고르는 AI","오이 사진을 보고 굽은 정도·색·가시까지 살펴 9등급으로 나눠요"],
+    why:"오이를 «보고 알아낸» 쪽이 AI! 일본의 한 오이 농가 아들이 부모님을 도우려고 직접 만들었어요" },
+  { mc:["mic",null,"녹음기","들린 소리를 그대로 저장해요"], ai:["bird","ear","새소리 앱","숲에서 소리를 듣고 «박새예요!» 새 이름을 알려 줘요"],
+    why:"소리를 듣고 «무슨 새인지 알아낸» 쪽이 AI! 녹음기는 저장만 해요" },
+  { mc:["bell",null,"화재경보기","연기가 센서에 닿아야 울려요"], ai:["mountain","cam","산불 감시 카메라","먼 산에서 피어오르는 연기를 보고 먼저 알려 줘요"],
+    why:"멀리 있는 연기를 «보고 알아낸» 쪽이 AI! 경보기는 연기가 닿아야만 울려요" },
+  { mc:["mega",null,"확성기","말소리를 크게 키워 주기만 해요"], ai:["speech","ear","실시간 자막 AI","선생님 말을 알아듣고 바로 글자로 보여 줘요"],
+    why:"말을 «알아듣고 글로 바꾼» 쪽이 AI! 듣기 어려운 친구를 도와줘요" },
+];
+const ROLES = [
+  {id:1,ic:"eyes",name:"알아보기",job:"보고 듣고 무엇인지 알아맞혀요"},
+  {id:2,ic:"gift",name:"골라 주기",job:"좋아할 것을 골라 줘요"},
+  {id:3,ic:"palette",name:"만들기",job:"그림·글·움직임을 새로 만들어요"},
+  {id:4,ic:"speech",name:"알아듣고 답하기",job:"질문을 알아듣고 대답해요"},
+];
+const RCASES = [
+  { a:"whale", b:"headphone", name:"고래 노래 찾는 AI", desc:"바닷속 녹음 수천 시간에서 혹등고래 노래만 찾아내요", role:1, why:"수많은 소리 중 고래 노래를 «알아보는» 일을 해요" },
+  { a:"film", b:"popcorn", name:"영상 앱의 표지 그림", desc:"같은 영화라도 사람마다 다른 표지 그림을 보여 줘요", role:2, why:"내가 좋아할 만한 그림을 «골라 주는» 일을 해요" },
+  { a:"dancer", b:"crayon", name:"그림을 춤추게 하는 AI", desc:"내가 종이에 그린 사람 그림이 화면에서 춤을 춰요", role:3, why:"그림에 맞는 움직임을 새로 «만드는» 일을 해요" },
+  { a:"cane", b:"phone", name:"눈이 되어 주는 AI", desc:"보이지 않는 사람이 «이 우유 언제까지 먹어도 돼?» 물으면 사진을 보고 말로 답해요", role:4, why:"질문을 «알아듣고 답하는» 일을 해요" },
+];
+const BUILD = [ // [그림, 배지, 이름, 정답, AI면 역할]
+  ["door",null,"자동문","mc"],["strawberry","robot","딸기 따는 로봇","ai",1],["abacus",null,"주판","mc"],["cow","eyes","소 얼굴 알아보는 AI","ai",1],
+  ["traffic",null,"시간 신호등","mc"],["dancer","crayon","그림 춤 AI","ai",3],["thermo",null,"온도계","mc"],["speech","ear","실시간 자막","ai",4],
+];
+/* ================= */
+const STEPS=["이야기","문제","탐구①","","탐구②","제작","","성찰"];
+const S={v:0,pi:0,pPick:null,ri:0,rPick:null,bin:'ai',placed:{}};
+const $=id=>document.getElementById(id);
+function stepsBar(){
+  const map=[0,1,2,2,3,4,4,5], names=["이야기","문제","탐구①","탐구②","제작","성찰"];
+  $('steps').innerHTML=names.map((n,i)=>`<span class="${map[S.v]===i?'on':''}">${n}</span>`).join('');
+}
+function fillPics(){ document.querySelectorAll("[data-pic]").forEach(el=>{ if(el.dataset.done) return; const [a,b]=el.dataset.pic.split(","); el.innerHTML=pic(a,b); el.dataset.done=1; }); }
+function go(v){ S.v=v; render(); }
+function render(){
+  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v'+S.v)); stepsBar();
+  if(S.v===0) $('fair').innerHTML=FAIR.map(f=>`<div class="booth"><span class="sticker q">AI?</span><div class="e">${pic(f[0],f[1])}</div><div class="n">${f[2]}</div></div>`).join('');
+  if(S.v===2) renderPair();
+  if(S.v===4) renderRole();
+  if(S.v===5) renderBuild();
+  fillPics();
+}
+/* 짝 비교 — 좌우를 섞어서 보여 준다 */
+function renderPair(){
+  const p=PAIRS[S.pi], flip=S.pi%2===1;
+  const L=flip?['ai',p.ai]:['mc',p.mc], R=flip?['mc',p.mc]:['ai',p.ai];
+  const card=(k,c)=>{ const shown=S.pPick; const cls=shown?(k==='ai'?'isAI':'isMC'):''; const wrong=S.pPick==='wrong'&&k==='mc'?'':'';
+    return `<div class="card ${S.pPick==='ok'?cls:''}" onclick="pickPair('${k}')">${S.pPick==='ok'?`<span class="tag">${k==='ai'?'AI':'그냥 기계'}</span>`:''}<div class="e">${pic(c[0],c[1])}</div><div class="n">${c[2]}</div><div class="d">${c[3]}</div></div>`; };
+  $('pChip').textContent=`2차시 · Inquiry 탐구 ① — 짝 ${S.pi+1} / ${PAIRS.length}`;
+  $('pair').innerHTML=card(L[0],L[1])+'<div class="vs">VS</div>'+card(R[0],R[1]);
+  const fb=$('pFb'); fb.className='fb';
+  if(S.pPick==='ok'){ fb.classList.add('ok'); fb.textContent='딩동댕! '+p.why; $('pNext').classList.remove('hidden'); }
+  else if(S.pPick==='no'){ fb.classList.add('no'); fb.textContent='음… 그건 «정해진 대로» 하는 쪽이에요. 다시 볼까요?'; $('pNext').classList.add('hidden'); }
+  else { fb.textContent='어떤 게 «정해진 대로» 하고, 어떤 게 «스스로 알아낼»까?'; $('pNext').classList.add('hidden'); }
+}
+function pickPair(k){ S.pPick = k==='ai'?'ok':'no'; renderPair(); if(k!=='ai') setTimeout(()=>{ if(S.pPick==='no'){S.pPick=null;renderPair();} },1500); }
+function pairNext(){ S.pPick=null; if(S.pi<PAIRS.length-1){ S.pi++; renderPair(); } else go(3); }
+/* 역할 */
+function renderRole(){
+  const c=RCASES[S.ri];
+  $('rChip').textContent=`3차시 · Inquiry 탐구② — AI 일꾼 ${S.ri+1} / ${RCASES.length}`;
+  $('rArt').innerHTML=pic(c.a,c.b); $('rName').textContent=c.name; $('rDesc').textContent=c.desc;
+  $('roles').innerHTML=ROLES.map(r=>`<button class="role ${S.rPick===r.id?'pick':''} ${S.rPick&&S.rPick!==r.id?'dim':''}" onclick="pickRole(${r.id})"><span>${pic(r.ic)}</span>${r.name}<small>${r.job}</small></button>`).join('');
+  const fb=$('rFb'); fb.className='fb';
+  if(!S.rPick){ fb.textContent='일하는 모습을 보고 골라요'; $('rNext').classList.add('hidden'); }
+  else if(S.rPick===c.role){ fb.classList.add('ok'); fb.textContent=`맞아요! ${c.name}은(는) ${c.why}`; $('rNext').classList.remove('hidden'); }
+  else { fb.classList.add('no'); fb.textContent='다시 생각해 볼까요? AI가 무엇을 하고 있나요?'; $('rNext').classList.add('hidden'); }
+}
+function pickRole(id){ S.rPick=id; renderRole(); if(id!==RCASES[S.ri].role) setTimeout(()=>{ if(S.rPick===id){S.rPick=null;renderRole();} },1500); }
+function roleNext(){ S.rPick=null; if(S.ri<RCASES.length-1){ S.ri++; renderRole(); } else go(5); }
+/* 제작: 감별 도감 */
+function selBin(b){ S.bin=b; renderBuild(); }
+function place(i){ S.placed[i]=S.bin; renderBuild(); }
+function renderBuild(){
+  $('binAI').classList.toggle('sel',S.bin==='ai'); $('binMC').classList.toggle('sel',S.bin==='mc');
+  const all=Object.keys(S.placed).length===BUILD.length;
+  const item=(b,i)=>`<span class="it ${all&&S.placed[i]!==b[3]?'bad':''}"><span class="e">${pic(b[0],b[1])}</span>${b[2]}${S.placed[i]==='ai'&&b[4]?` <span class="rs">${pic(ROLES[b[4]-1].ic)}</span>`:''}</span>`;
+  $('inAI').innerHTML=BUILD.map((b,i)=>S.placed[i]==='ai'?item(b,i):'').join('');
+  $('inMC').innerHTML=BUILD.map((b,i)=>S.placed[i]==='mc'?item(b,i):'').join('');
+  $('pool').innerHTML=BUILD.map((b,i)=>S.placed[i]===undefined?`<span class="it" onclick="place(${i})"><span class="e">${pic(b[0],b[1])}</span>${b[2]}</span>`:'').join('') || '<div class="sub">다 넣었어요!</div>';
+  const ok=all&&BUILD.every((b,i)=>S.placed[i]===b[3]);
+  $('bFb').classList.toggle('hidden',!all); $('bNext').classList.toggle('hidden',!ok);
+  if(all){ $('bFb').className='fb '+(ok?'ok':'no'); $('bFb').textContent= ok?'감별 도감 완성! AI 카드에는 하는 일 배지가 붙었어요':'빨간 테두리 카드를 다시 볼까요? 정해진 대로? 스스로 알아내?';
+    if(!ok){ $('bFb').innerHTML+=' <button class="btn ghost" style="font-size:2.2vh;padding:.8vh 2vh" onclick="S.placed={};renderBuild()">다시 하기</button>'; } }
+}
+function restart(){ S.pi=0;S.pPick=null;S.ri=0;S.rPick=null;S.placed={};S.bin='ai'; go(0); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'||e.key==='Home') restart(); else if(e.key==='ArrowRight'){ const b=document.querySelector('.view.on .btn.amber:not(.hidden), .view.on .row:not(.hidden) > .btn.amber, .view.on .row > .btn'); b&&b.click(); } });
+
+/* 캡처용 #cap= */
+const CAP={
+  '01_narrative':()=>go(0),
+  '02_problem':()=>go(1),
+  '03_pair':()=>{ S.pi=0; go(2); },
+  '04_pair_ok':()=>{ S.pi=0; S.pPick='ok'; go(2); },
+  '05_rule':()=>go(3),
+  '06_role_ok':()=>{ S.ri=0; S.rPick=1; go(4); },
+  '07_build':()=>{ S.placed={0:'mc',1:'ai',2:'mc',3:'ai'}; go(5); },
+  '08_build_ok':()=>{ BUILD.forEach((b,i)=>S.placed[i]=b[3]); go(5); },
+  '09_idea':()=>go(6),
+  '10_reflect':()=>go(7),
+};
+const m=location.hash.match(/cap=(\w+)/);
+if(m&&CAP[m[1]]){ const st=document.createElement('style'); st.textContent='*{animation:none!important;transition:none!important}.keys{display:none}'; document.head.appendChild(st); CAP[m[1]](); } else render();
+</script>
+</body></html>
