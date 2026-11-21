@@ -107,6 +107,14 @@ main{position:relative;z-index:1;height:100%;padding:11vh 3.4vw 4vh}
 .fe.badge{position:absolute;right:-.42em;bottom:-.12em;width:.62em;height:.62em;object-fit:contain;background:#fff;border-radius:50%;padding:.07em;box-shadow:0 .3vh 1vh rgba(58,46,42,.22)}
 .pic{margin-right:.3em}
 .fe.badge{display:none}
+.fixbtn{font-family:"Jua";font-size:3.2vh;background:var(--cream);color:var(--ink);border:.5vh solid #e6dccb;border-radius:2.6vh;padding:1.4vh 2.6vw;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.6vh}
+.fixbtn .pic{font-size:7vh;margin:0}
+.fixbtn.best{border-color:var(--green);background:#eefaf2}.fixbtn.half{border-color:var(--amber)}.fixbtn.bad{border-color:var(--red)}
+.sentence{font-family:"Jua";font-size:4.6vh;line-height:1.7;background:var(--cream);border-radius:3vh;padding:2.6vh 3vw;box-shadow:0 10px 0 rgba(58,46,42,.06);max-width:88vw}
+.blank{display:inline-block;min-width:12vw;border-bottom:.6vh solid var(--ink);color:var(--ai);padding:0 .6vw;cursor:pointer}
+.blank.cur{background:#eef2fd;border-radius:1vh 1vh 0 0}
+.chips{display:flex;gap:1vw;flex-wrap:wrap;justify-content:center;max-width:88vw}
+.chips button{font-family:"Jua";font-size:2.9vh;background:#fff;border:.4vh solid var(--ai);color:var(--ai-d);border-radius:999px;padding:1vh 2.4vh;cursor:pointer}
 .keys{position:fixed;right:3.4vw;bottom:1.4vh;font-size:1.6vh;color:rgba(58,46,42,.4);z-index:5}
 </style></head>
 <body>
@@ -173,6 +181,20 @@ main{position:relative;z-index:1;height:100%;padding:11vh 3.4vw 4vh}
     <div class="row hidden" id="rNext"><button class="btn amber" onclick="roleNext()">다음 ▶</button></div>
   </section>
 
+  <!-- 8 Inquiry 3: 한계와 해결법 -->
+  <section class="view col" id="v8">
+    <span class="chip" id="lChip">3차시 · Inquiry 탐구 ③ — AI가 틀릴 때</span>
+    <div class="pair" style="align-items:center">
+      <div class="card" style="cursor:default;width:min(52vw,92vh);border-color:var(--red)"><span class="tag" style="background:var(--red);box-shadow:0 3px 0 var(--red-d)" id="lKind"></span>
+        <div class="row" style="gap:2vw"><div class="e" id="lArt" style="font-size:14vh"></div>
+        <div style="text-align:left"><div class="d" id="lWho" style="font-family:Jua;font-size:3vh;color:#7a6a64"></div><div class="n" id="lDid" style="font-size:3.4vh"></div><div class="n" id="lGot" style="font-size:4.2vh;color:var(--red-d)"></div></div></div></div>
+    </div>
+    <div class="mid">이럴 땐 어떻게 할까?</div>
+    <div class="row" id="lFix"></div>
+    <div class="fb" id="lFb">세 가지 중 골라 봐요</div>
+    <div class="row hidden" id="lNext"><button class="btn amber" onclick="limitNext()">다음 ▶</button></div>
+  </section>
+
   <!-- 5 Build: 감별 도감 -->
   <section class="view col" id="v5">
     <span class="chip">4차시 · Build 제작</span>
@@ -195,21 +217,17 @@ main{position:relative;z-index:1;height:100%;padding:11vh 3.4vw 4vh}
       <div class="arrow">➜</div>
       <div class="box" style="border:.6vh solid var(--ai)"><div class="e" data-pic="umbrella,rain"></div><div class="n">AI 우산꽂이</div><div class="d">하늘을 보고 «오늘 비 와요, 우산 챙겨!» 알려 줘요<br><b style="color:var(--ai)">알아보기 + 알아듣고 답하기</b></div></div>
     </div>
-    <div class="sub">모둠 활동지: <b>바꿀 기계</b> → <b>무엇을 보고·듣고 알아낼까?</b> → <b>어떤 일을 해 줄까?</b> 그려 보기</div>
+    <div class="sub">모둠 활동지: <b>바꿀 기계</b> → <b>무엇을 보고·듣고 알아낼까?</b> → <b>어떤 일을 해 줄까?</b> → <b>틀리면 어떻게 확인할까?</b> 그려 보기</div>
     <div class="row"><button class="btn amber" onclick="go(7)">돌아보기 ▶</button></div>
   </section>
 
   <!-- 7 Reflect -->
   <section class="view col" id="v7">
     <span class="chip">4차시 · Reflect 성찰</span>
-    <div class="big">감별사의 돌아보기</div>
-    <div class="qs">
-      <div><span data-pic="detective"></span>어떤 «증거»를 보고 AI라고 판단했나요?</div>
-      <div><span data-pic="gear,brain"></span>그냥 기계와 AI는 일하는 방법이 어떻게 달랐나요?</div>
-      <div><span data-pic="label"></span>AI가 틀린다면 누가 어떻게 확인해야 할까요?</div>
-    </div>
-    <div class="badge"><span data-pic="detective,medal" style="font-size:9vh"></span><br>AI 감별사 1급<small>정해진 대로? 스스로 알아내? — 증거로 판단해요 · 이상하면 어른에게 물어봐요</small></div>
-    <div class="row"><button class="btn ghost" onclick="restart()">처음부터</button></div>
+    <div class="big">내 문장으로 정리하고 발표해요</div>
+    <div class="sentence" id="sent"></div>
+    <div class="chips" id="chips"></div>
+    <div class="row"><span class="badge" style="font-size:3.4vh;padding:1.2vh 3vw"><span data-pic="detective" style="font-size:6vh;vertical-align:middle"></span> AI 감별사 1급</span><button class="btn ghost" onclick="restart()">처음부터</button></div>
   </section>
 </main>
 <div class="keys">🏠/Esc 처음 · → 다음</div>
@@ -228,7 +246,7 @@ const IMG={
   strawberry:"Strawberry/3D/strawberry_3d.png", robot:"Robot/3D/robot_3d.png", cow:"Cow face/3D/cow_face_3d.png", penguin:"Penguin/3D/penguin_3d.png",
   gear:"Gear/3D/gear_3d.png", brain:"Brain/3D/brain_3d.png", umbrella:"Umbrella/3D/umbrella_3d.png", rain:"Cloud with rain/3D/cloud_with_rain_3d.png",
   gift:"Wrapped gift/3D/wrapped_gift_3d.png", palette:"Artist palette/3D/artist_palette_3d.png", detective:"Detective/Default/3D/detective_3d_default.png",
-  tent:"Circus tent/3D/circus_tent_3d.png", label:"Label/3D/label_3d.png", bulb:"Light bulb/3D/light_bulb_3d.png", medal:"Sports medal/3D/sports_medal_3d.png",
+  tent:"Circus tent/3D/circus_tent_3d.png", mushroom:"Mushroom/3D/mushroom_3d.png", thinking:"Thinking face/3D/thinking_face_3d.png", repeat:"Repeat button/3D/repeat_button_3d.png", teacher:"Man teacher/Default/3D/man_teacher_3d_default.png", raise:"Woman raising hand/Default/3D/woman_raising_hand_3d_default.png", dino:"Sauropod/3D/sauropod_3d.png", check:"Check mark button/3D/check_mark_button_3d.png", label:"Label/3D/label_3d.png", bulb:"Light bulb/3D/light_bulb_3d.png", medal:"Sports medal/3D/sports_medal_3d.png",
 };
 const im=(k,cls='')=>`<img class="fe ${cls}" src="${FE}${encodeURI(IMG[k])}" alt="">`;
 const pic=(a,b)=>`<span class="pic">${im(a,'main')}${b?im(b,'badge'):''}</span>`;
@@ -259,12 +277,26 @@ const BUILD = [ // [그림, 배지, 이름, 정답, AI면 역할]
   ["door",null,"자동문","mc"],["strawberry","robot","딸기 따는 로봇","ai",1],["abacus",null,"주판","mc"],["cow","eyes","소 얼굴 알아보는 AI","ai",1],
   ["traffic",null,"시간 신호등","mc"],["dancer","crayon","그림 춤 AI","ai",3],["thermo",null,"온도계","mc"],["speech","ear","실시간 자막","ai",4],
 ];
+const FIX=[{k:"trust",ic:"thinking",t:"그냥 믿기"},{k:"retry",ic:"repeat",t:"다시 확인하기"},{k:"adult",ic:"teacher",t:"어른에게 묻기"}];
+const LIMITS=[
+  { ic:"speech", who:"AI 스피커", did:"«사과 노래 틀어 줘» 했더니", got:"«사가 노래»를 틀었어요", kind:"말을 잘못 알아들었어요", best:"retry", ok2:"adult",
+    why:"또박또박 다시 말하고, 화면 글자가 맞는지 확인해요" },
+  { ic:"dino", who:"영상 앱", did:"공룡 영상을 한 번 봤더니", got:"계속 공룡 영상만 추천해요", kind:"마음에 안 드는 추천이에요", best:"retry", ok2:"adult",
+    why:"추천만 따라가지 말고, 보고 싶은 것은 내가 직접 골라요" },
+  { ic:"mushroom", who:"챗봇", did:"«산에서 주운 이 버섯 먹어도 돼?» 물었더니", got:"«먹어도 돼요!»라고 답했어요", kind:"위험할 수 있는 답이에요", best:"adult", ok2:"retry",
+    why:"몸이나 안전에 관한 건 AI 말만 믿지 말고 꼭 어른에게 물어봐요" },
+];
+const BLANKS=[
+  ["오이 고르기","고래 노래 찾기","그림 춤추게 하기","말 알아듣기"],
+  ["말을 잘못 알아들을","엉뚱한 걸 추천할","잘못 알아볼","틀린 답을 말할"],
+  ["다시 확인","어른에게 질문","내가 직접 선택"],
+];
 /* ================= */
 const STEPS=["이야기","문제","탐구①","","탐구②","제작","","성찰"];
-const S={v:0,pi:0,pPick:null,ri:0,rPick:null,bin:'ai',placed:{}};
+const S={v:0,pi:0,pPick:null,ri:0,rPick:null,bin:'ai',placed:{},li:0,lPick:null,blanks:[null,null,null],cur:0};
 const $=id=>document.getElementById(id);
 function stepsBar(){
-  const map=[0,1,2,2,3,4,4,5], names=["이야기","문제","탐구①","탐구②","제작","성찰"];
+  const map=[0,1,2,2,3,5,5,6,4], names=["이야기","문제","탐구①","탐구②","한계","제작","성찰"];
   $('steps').innerHTML=names.map((n,i)=>`<span class="${map[S.v]===i?'on':''}">${n}</span>`).join('');
 }
 function fillPics(){ document.querySelectorAll("[data-pic]").forEach(el=>{ if(el.dataset.done) return; const [a,b]=el.dataset.pic.split(","); el.innerHTML=pic(a,b); el.dataset.done=1; }); }
@@ -275,6 +307,8 @@ function render(){
   if(S.v===2) renderPair();
   if(S.v===4) renderRole();
   if(S.v===5) renderBuild();
+  if(S.v===8) renderLimit();
+  if(S.v===7) renderSent();
   fillPics();
 }
 /* 짝 비교 — 좌우를 섞어서 보여 준다 */
@@ -304,7 +338,7 @@ function renderRole(){
   else { fb.classList.add('no'); fb.textContent='다시 생각해 볼까요? AI가 무엇을 하고 있나요?'; $('rNext').classList.add('hidden'); }
 }
 function pickRole(id){ S.rPick=id; renderRole(); if(id!==RCASES[S.ri].role) setTimeout(()=>{ if(S.rPick===id){S.rPick=null;renderRole();} },1500); }
-function roleNext(){ S.rPick=null; if(S.ri<RCASES.length-1){ S.ri++; renderRole(); } else go(5); }
+function roleNext(){ S.rPick=null; if(S.ri<RCASES.length-1){ S.ri++; renderRole(); } else go(8); }
 /* 제작: 감별 도감 */
 function selBin(b){ S.bin=b; renderBuild(); }
 function place(i){ S.placed[i]=S.bin; renderBuild(); }
@@ -320,7 +354,27 @@ function renderBuild(){
   if(all){ $('bFb').className='fb '+(ok?'ok':'no'); $('bFb').textContent= ok?'감별 도감 완성! AI 카드에는 하는 일 배지가 붙었어요':'빨간 테두리 카드를 다시 볼까요? 정해진 대로? 스스로 알아내?';
     if(!ok){ $('bFb').innerHTML+=' <button class="btn ghost" style="font-size:2.2vh;padding:.8vh 2vh" onclick="S.placed={};renderBuild()">다시 하기</button>'; } }
 }
-function restart(){ S.pi=0;S.pPick=null;S.ri=0;S.rPick=null;S.placed={};S.bin='ai'; go(0); }
+function renderLimit(){
+  const c=LIMITS[S.li];
+  $('lChip').textContent=`3차시 · Inquiry 탐구 ③ — AI가 틀릴 때 ${S.li+1} / ${LIMITS.length}`;
+  $('lKind').textContent=c.kind; $('lArt').innerHTML=pic(c.ic); $('lWho').textContent=c.who; $('lDid').textContent=c.did; $('lGot').textContent=c.got;
+  $('lFix').innerHTML=FIX.map(f=>{ let cls=''; if(S.lPick===f.k){ cls= f.k===c.best?'best':(f.k===c.ok2?'half':'bad'); }
+    return `<button class="fixbtn ${cls}" onclick="pickFix('${f.k}')">${pic(f.ic)}${f.t}</button>`; }).join('');
+  const fb=$('lFb'); fb.className='fb'; $('lNext').classList.add('hidden');
+  if(!S.lPick) fb.textContent='세 가지 중 골라 봐요';
+  else if(S.lPick==='trust'){ fb.classList.add('no'); fb.textContent='앗, AI도 틀릴 수 있어요! 그냥 믿으면 어떻게 될까요?'; }
+  else if(S.lPick===c.best){ fb.classList.add('ok'); fb.textContent='좋아요! '+c.why; $('lNext').classList.remove('hidden'); }
+  else { fb.classList.add('ok'); fb.textContent='그것도 좋아요! 그리고 '+c.why; $('lNext').classList.remove('hidden'); }
+}
+function pickFix(k){ S.lPick=k; renderLimit(); if(k==='trust') setTimeout(()=>{ if(S.lPick==='trust'){S.lPick=null;renderLimit();} },1700); }
+function limitNext(){ S.lPick=null; if(S.li<LIMITS.length-1){ S.li++; renderLimit(); } else go(5); }
+function renderSent(){
+  const B=(i,ph)=>`<span class="blank ${S.cur===i?'cur':''}" onclick="S.cur=${i};renderSent()">${S.blanks[i]||ph}</span>`;
+  $('sent').innerHTML=`AI는 ${B(0,'　　　')}을/를 도와줘요.<br>하지만 ${B(1,'　　　')}수 있기 때문에,<br>나는 ${B(2,'　　　')}할 거예요.`;
+  $('chips').innerHTML=BLANKS[S.cur].map(w=>`<button onclick="fillBlank('${w}')">${w}</button>`).join('')+`<button style="border-style:dashed" onclick="fillBlank('내 말로 쓰기')">✏️ 내 말로 쓰기</button>`;
+}
+function fillBlank(w){ S.blanks[S.cur]=w; if(S.cur<2) S.cur++; renderSent(); }
+function restart(){ S.pi=0;S.pPick=null;S.ri=0;S.rPick=null;S.placed={};S.bin='ai';S.li=0;S.lPick=null;S.blanks=[null,null,null];S.cur=0; go(0); }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'||e.key==='Home') restart(); else if(e.key==='ArrowRight'){ const b=document.querySelector('.view.on .btn.amber:not(.hidden), .view.on .row:not(.hidden) > .btn.amber, .view.on .row > .btn'); b&&b.click(); } });
 
 /* 캡처용 #cap= */
@@ -334,7 +388,10 @@ const CAP={
   '07_build':()=>{ S.placed={0:'mc',1:'ai',2:'mc',3:'ai'}; go(5); },
   '08_build_ok':()=>{ BUILD.forEach((b,i)=>S.placed[i]=b[3]); go(5); },
   '09_idea':()=>go(6),
-  '10_reflect':()=>go(7),
+  '06b_limit':()=>{ S.li=0; go(8); },
+  '06c_limit_ok':()=>{ S.li=2; S.lPick='adult'; go(8); },
+  '10_reflect':()=>{ S.blanks=['고래 노래 찾기','잘못 알아볼',null]; S.cur=2; go(7); },
+  '11_reflect_done':()=>{ S.blanks=['말 알아듣기','말을 잘못 알아들을','다시 확인']; S.cur=2; go(7); },
 };
 const m=location.hash.match(/cap=(\w+)/);
 if(m&&CAP[m[1]]){ const st=document.createElement('style'); st.textContent='*{animation:none!important;transition:none!important}.keys{display:none}'; document.head.appendChild(st); CAP[m[1]](); } else render();
