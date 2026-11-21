@@ -115,7 +115,7 @@ main{position:relative;z-index:1;height:100%;padding:11vh 3.4vw 4vh}
 .blank.cur{background:#eef2fd;border-radius:1vh 1vh 0 0}
 .chips{display:flex;gap:1vw;flex-wrap:wrap;justify-content:center;max-width:88vw}
 .chips button{font-family:"Jua";font-size:2.9vh;background:#fff;border:.4vh solid var(--ai);color:var(--ai-d);border-radius:999px;padding:1vh 2.4vh;cursor:pointer}
-.keys{position:fixed;right:3.4vw;bottom:1.4vh;font-size:1.6vh;color:rgba(58,46,42,.4);z-index:5}
+.keys{position:fixed;left:3.4vw;bottom:1.4vh;font-size:1.6vh;color:rgba(58,46,42,.4);z-index:5}
 
 /* ===== 스티커판 — 포스터 «우리 주변에 숨어 있는 AI를 찾아라!» 양식 ===== */
 :root{ --ink:#2a2140; --line:#2b2840; --lilac:#e9ddff; --lilac2:#d9c6ff; --purple:#6a3fc8; --pink:#f27ac6; --pink2:#ffd1ee;
@@ -172,6 +172,9 @@ main{padding-top:11.5vh!important;padding-bottom:3vh!important}
 #v4 .card{padding-bottom:2vh!important}#v4 .card .e{font-size:11vh!important}
 .role{padding:1.2vh 1vw!important}.role span{font-size:5.6vh!important}
 .sub{padding:1vh 2.4vh!important}
+.skip{position:fixed;right:3vw;bottom:3vh;z-index:6;font-family:"Jua";font-size:2.6vh;color:#5a4a44;background:rgba(255,253,246,.92);border:0;border-radius:999px;padding:1vh 2.6vh;cursor:pointer;box-shadow:0 4px 0 rgba(58,46,42,.12)}
+.skip:hover{background:#fff}
+.skip{border:.4vh solid #2b2840;box-shadow:0 .5vh 0 #2b2840;background:#fff;color:#6a3fc8}
 </style></head>
 <body>
 <div class="blob b1"></div><div class="blob b2"></div>
@@ -286,7 +289,8 @@ main{padding-top:11.5vh!important;padding-bottom:3vh!important}
     <div class="row"><span class="badge" style="font-size:3.4vh;padding:1.2vh 3vw"><span data-pic="detective" style="font-size:6vh;vertical-align:middle"></span> AI 감별사 1급</span><button class="btn ghost" onclick="restart()">처음부터</button></div>
   </section>
 </main>
-<div class="keys">🏠/Esc 처음 · → 다음</div>
+<button class="skip" id="skipBtn" onclick="skip()" title="이 단계 건너뛰기 (S)">건너뛰기 ⏭</button>
+<div class="keys">🏠/Esc 처음 · → 다음 · S 건너뛰기</div>
 
 <script>
 /* ===== 내용 ===== */
@@ -364,6 +368,7 @@ function render(){
   if(S.v===4) renderRole();
   if(S.v===5) renderBuild();
   if(S.v===8) renderLimit();
+  $('skipBtn').classList.toggle('hidden', S.v===7);
   if(S.v===7) renderSent();
   fillPics();
 }
@@ -430,8 +435,18 @@ function renderSent(){
   $('chips').innerHTML=BLANKS[S.cur].map(w=>`<button onclick="fillBlank('${w}')">${w}</button>`).join('')+`<button style="border-style:dashed" onclick="fillBlank('내 말로 쓰기')">✏️ 내 말로 쓰기</button>`;
 }
 function fillBlank(w){ S.blanks[S.cur]=w; if(S.cur<2) S.cur++; renderSent(); }
+function skip(){
+  if(S.v===0) return go(1);
+  if(S.v===1) return go(2);
+  if(S.v===2) return pairNext();
+  if(S.v===3) return go(4);
+  if(S.v===4) return roleNext();
+  if(S.v===8) return limitNext();
+  if(S.v===5) return go(6);
+  if(S.v===6) return go(7);
+}
 function restart(){ S.pi=0;S.pPick=null;S.ri=0;S.rPick=null;S.placed={};S.bin='ai';S.li=0;S.lPick=null;S.blanks=[null,null,null];S.cur=0; go(0); }
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'||e.key==='Home') restart(); else if(e.key==='ArrowRight'){ const b=document.querySelector('.view.on .btn.amber:not(.hidden), .view.on .row:not(.hidden) > .btn.amber, .view.on .row > .btn'); b&&b.click(); } });
+document.addEventListener('keydown',e=>{ if(e.key==='s'||e.key==='S') return skip(); if(e.key==='Escape'||e.key==='Home') restart(); else if(e.key==='ArrowRight'){ const b=document.querySelector('.view.on .btn.amber:not(.hidden), .view.on .row:not(.hidden) > .btn.amber, .view.on .row > .btn'); b&&b.click(); } });
 
 /* 캡처용 #cap= */
 const CAP={
@@ -450,6 +465,6 @@ const CAP={
   '11_reflect_done':()=>{ S.blanks=['말 알아듣기','말을 잘못 알아들을','다시 확인']; S.cur=2; go(7); },
 };
 const m=location.hash.match(/cap=(\w+)/);
-if(m&&CAP[m[1]]){ const st=document.createElement('style'); st.textContent='*{animation:none!important;transition:none!important}.keys{display:none}'; document.head.appendChild(st); CAP[m[1]](); } else render();
+if(m&&CAP[m[1]]){ const st=document.createElement('style'); st.textContent='*{animation:none!important;transition:none!important}.keys{display:none}.skip{display:none!important}'; document.head.appendChild(st); CAP[m[1]](); } else render();
 </script>
 </body></html>
